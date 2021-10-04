@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Core.Utilities.Results;
+using DataAccess.Abstract;
 using DataAccess.Concrete.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -8,9 +10,14 @@ namespace Business.Concrete
 {
     public class OrderManager : IOrderService
     {
-        public List<Order> GetAll()
+        IOrderDal _orderDal;
+        public OrderManager(IOrderDal orderDal)
         {
-            throw new NotImplementedException();
+            _orderDal = orderDal;
+        }
+        public IDataResult<List<Order>> GetAll()
+        {
+            return new SuccessDataResult<List<Order>>(_orderDal.GetAll());
         }
     }
 }
