@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DataAccess.Concrete.EntityFramework
+namespace Entities.Concrete
 {
     public class Order : IEntity
     {
