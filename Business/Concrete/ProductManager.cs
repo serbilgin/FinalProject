@@ -2,18 +2,18 @@
 using Business.BusinessAspect.Autofac;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Caching;
+using Core.Aspects.Autofac.Performance;
+using Core.Aspects.Autofac.Transaction;
 using Core.Aspects.Autofac.Validation;
-using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using Entities.DTOs;
-using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Business.Concrete
 {
@@ -21,14 +21,18 @@ namespace Business.Concrete
     {
         IProductDal _productDal;
         ICategoryService _categoryService;
+
         public ProductManager(IProductDal productDal, ICategoryService categoryService)
         {
             _productDal = productDal;
             _categoryService = categoryService;
         }
+
         //type can be passed as parameter in attribute
         [SecuredOperation("product.add,admin")]
         [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
+        [TransactionScopeAspect]
         public IResult Add(Product product)
         {
             var result = BusinessRules.Run(ValidateProductCountCategory(product.CategoryId),
@@ -39,6 +43,8 @@ namespace Business.Concrete
             return new SuccessResult(Messages.ProductAdded);
         }
 
+        [CacheAspect]
+        [PerformanceAspect(5)]
         public IDataResult<List<Product>> GetAll()
         {
             if (DateTime.Now.Hour == 13)
@@ -53,6 +59,7 @@ namespace Business.Concrete
             return new SuccessDataResult<List<Product>>(_productDal.GetAll(p=>p.CategoryId==id));
         }
 
+        [CacheAspect]
         public IDataResult<Product> GetByProductId(int id)
         {
             return new SuccessDataResult<Product>(_productDal.Get(p=>p.ProductId==id));
@@ -68,11 +75,16 @@ namespace Business.Concrete
             return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
         }
 
+        [SecuredOperation("product.add,admin")]
+        [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
+        [TransactionScopeAspect]
         public IResult Update(Product product)
         {
             _productDal.Update(product);
             return new SuccessResult();
         }
+
         private IResult ValidateProductCountCategory(int categoryId)
         {
             var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
@@ -82,6 +94,7 @@ namespace Business.Concrete
             }
             return new SuccessResult();
         }
+
         private IResult CheckIfProductNameExist(string productName)
         {
             var result = _productDal.GetAll(p => p.ProductName == productName).Any();
@@ -91,6 +104,7 @@ namespace Business.Concrete
             }
             return new SuccessResult();
         }
+
         private IResult CheckIfCategoryLimitExceeded()
         {
             var result = _categoryService.GetAll();
