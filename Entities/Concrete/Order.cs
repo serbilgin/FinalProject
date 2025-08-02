@@ -12,5 +12,7 @@ namespace Entities.Concrete
         public int EmployeeId { get; set; }
         public DateTime OrderDate { get; set; }
         public string ShipCity { get; set; }
+
+        public Customer Customer { get; set; } // Navigation property for Customer entity
     }
 }

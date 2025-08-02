@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace Entities.Concrete
@@ -11,5 +12,7 @@ namespace Entities.Concrete
         public string ContactName { get; set; }
         public string CompanyName { get; set; }
         public string City { get; set; }
+
+        public ICollection<Order> Orders { get; set; } // Navigation property for related orders
     }
 }
