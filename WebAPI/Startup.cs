@@ -75,6 +75,7 @@ namespace WebAPI
             {
                 endpoints.MapControllers();
             });
+            context.Database.MigrateAsync();
         }
     }
 }
