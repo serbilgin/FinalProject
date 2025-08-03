@@ -3,13 +3,16 @@ using Core.Extensions;
 using Core.Utilities.IoC;
 using Core.Utilities.Security.Encryption;
 using Core.Utilities.Security.JWT;
+using DataAccess.Concrete.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using System.Threading.Tasks;
 
 namespace WebAPI
 {
@@ -75,7 +78,9 @@ namespace WebAPI
             {
                 endpoints.MapControllers();
             });
-            context.Database.MigrateAsync();
+
+            var context = new NorthWindContext();
+            context.Database.Migrate();
         }
     }
 }
